@@ -58,6 +58,8 @@ torch.manual_seed(seed)
 np.random.seed(seed)
 state_dim = environment_dim + robot_dim
 action_dim = 2
+eva_steps=1000
+eva_eps=10
 
 # Create the network
 network = TD3(state_dim, action_dim)
@@ -70,20 +72,28 @@ done = False
 episode_timesteps = 0
 state = env.reset()
 
+rewards=[]
 # Begin the testing loop
-while True:
-    action = network.get_action(np.array(state))
-
-    # Update action to fall in range [0,1] for linear velocity and [-1,1] for angular velocity
-    a_in = [(action[0] + 1) / 2, action[1]]
-    next_state, reward, done, target = env.step(a_in)
-    done = 1 if episode_timesteps + 1 == max_ep else int(done)
-
-    # On termination of episode
-    if done:
-        state = env.reset()
-        done = False
-        episode_timesteps = 0
-    else:
-        state = next_state
-        episode_timesteps += 1
+for i in range(eva_eps):
+    reward_eps=0
+    for j in range(eva_steps):
+        action = network.get_action(np.array(state))
+        print('steps',j)
+        # Update action to fall in range [0,1] for linear velocity and [-1,1] for angular velocity
+        a_in = [(action[0] + 1) / 2, action[1]]
+        next_state, reward, done, target = env.step(a_in)
+        done = 1 if episode_timesteps + 1 == max_ep else int(done)
+        print('reward',reward)
+        # On termination of episode
+        if done:
+            state = env.reset()
+            done = False
+            episode_timesteps = 0
+            break
+        else:
+            state = next_state
+            episode_timesteps += 1
+        reward_eps+=reward
+    rewards.append(reward_eps)
+    print('eps:',i,'eps reward:',reward_eps)
+print('avg reward',np.mean(rewards))
