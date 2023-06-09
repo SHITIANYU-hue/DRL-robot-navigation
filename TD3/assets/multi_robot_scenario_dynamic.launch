@@ -1,0 +1,41 @@
+<launch>
+  <arg name="gui" value="false"/>
+  <arg name="ns0"        default="jackal0"/>
+  <arg name="ns1"        default="jackal1"/>
+  <arg name="config0"    default="laser_add_apriltags"/>
+  <arg name="config0_id" default="0"/>
+  <arg name="config1"    default="laser_add_apriltags"/>
+  <arg name="config1_id" default="1"/>
+   <!-- Gazebo  -->
+  <include file="$(find multi_robot_scenario)/launch/empty_world.launch" />
+
+  <!-- Spawn the robots. -->
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns0)"/>
+    <arg name="config"        value="$(arg config0)"/>
+    <arg name="config_id"     value="$(arg config0_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="2"/>
+    <arg name="y"             value="-4"/>
+    <arg name="yaw"           value="0.7"/>
+  </include>
+  <include file="$(find multi_jackal_base)/launch/jackal_base.launch">
+    <arg name="ns"            value="$(arg ns1)"/>
+    <arg name="config"        value="$(arg config1)"/>
+    <arg name="config_id"     value="$(arg config1_id)"/>
+    <arg name="use_move_base" value="true"/>
+    <arg name="x"             value="-2"/>
+    <arg name="y"             value="-1"/>
+    <arg name="yaw"           value="0.7"/>
+  </include>
+
+  <!-- Robot with diff drive -->
+  <include file="$(find multi_robot_scenario)/launch/pioneer3dx.gazebo.launch">
+     <arg name="robot_name" value="r1" />
+     <arg name="robot_position" value="-x 0.0 -y 0.0 -z 0.01 -R 0 -P 0 -Y +0.0" />
+  </include>
+
+  <!-- RVIZ -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find multi_robot_scenario)/launch/pioneer3dx.rviz" />
+
+</launch>

@@ -1,4 +1,5 @@
 import os
+# os.environ['CUDA_LAUNCH_BLOCKING'] = '1' # 下面老是报错 shape 不一致
 import time
 
 import numpy as np
@@ -22,7 +23,7 @@ def evaluate(network, epoch, eval_episodes=10):
         while not done and count < 501:
             action = network.get_action(np.array(state))
             a_in = [(action[0] + 1) / 2, action[1]]
-            state, reward, done, _ ,_= env.step(a_in)
+            state, reward, done, _, _ = env.step(a_in)
             avg_reward += reward
             count += 1
             if reward < -90:
@@ -235,7 +236,7 @@ policy_noise = 0.2  # Added noise for exploration
 noise_clip = 0.5  # Maximum clamping values of the noise
 policy_freq = 2  # Frequency of Actor network updates
 buffer_size = 1e6  # Maximum size of the buffer
-file_name = "TD3_velodyne"  # name of the file to store the policy
+file_name = "TD3_velodyne0606"  # name of the file to store the policy
 save_model = True  # Weather to save the model or not
 load_model = False  # Weather to load a stored model
 random_near_obstacle = True  # To take random actions near obstacles or not
@@ -249,7 +250,10 @@ if save_model and not os.path.exists("./pytorch_models"):
 # Create the training environment
 environment_dim = 20
 robot_dim = 4
-env = GazeboEnv("multi_robot_scenario.launch", environment_dim)
+# static environment
+# env = GazeboEnv("multi_robot_scenario_static.launch", environment_dim)
+# dynamic environment
+env = GazeboEnv("multi_robot_scenario_dynamic.launch", environment_dim)
 time.sleep(5)
 torch.manual_seed(seed)
 np.random.seed(seed)
@@ -281,6 +285,10 @@ epoch = 1
 count_rand_actions = 0
 random_action = []
 
+jackal0_x = []
+jackal0_y = []
+jackal1_x = []
+jackal1_y = []
 # Begin the training loop
 while timestep < max_timesteps:
 
@@ -343,7 +351,8 @@ while timestep < max_timesteps:
 
     # Update action to fall in range [0,1] for linear velocity and [-1,1] for angular velocity
     a_in = [(action[0] + 1) / 2, action[1]]
-    next_state, reward, done, target,_ = env.step(a_in)
+    next_state, reward, done, target, _ = env.step(a_in)
+    env.run()# dynamic obstacles move
     done_bool = 0 if episode_timesteps + 1 == max_ep else int(done)
     done = 1 if episode_timesteps + 1 == max_ep else int(done)
     episode_reward += reward

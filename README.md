@@ -1,3 +1,9 @@
+personal environment:
+{
+python = 3.8.10
+CUDA = 11.3 (https://blog.csdn.net/qq_41166909/article/details/124243523)
+pytorch = 1.10.1 (https://pytorch.org/get-started/previous-versions/)
+}
 # DRL-robot-navigation
 
 
