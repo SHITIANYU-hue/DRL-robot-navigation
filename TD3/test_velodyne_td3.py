@@ -59,7 +59,7 @@ np.random.seed(seed)
 state_dim = environment_dim + robot_dim
 action_dim = 2
 eva_steps=1000
-eva_eps=10
+eva_eps=3
 
 # Create the network
 network = TD3(state_dim, action_dim)
@@ -71,19 +71,31 @@ except:
 done = False
 episode_timesteps = 0
 state = env.reset()
-
+DELAY=0.3
 rewards=[]
+run_steps=[]
+distances=[]
+agl_distances=[]
+linear_vs=[]
+lateral_vs=[]
 # Begin the testing loop
 for i in range(eva_eps):
     reward_eps=0
+    run_step=0
+    distance=0
+    agl=0
+    linear_v=0
+    lateral_v=0
+    max_dist=0
     for j in range(eva_steps):
         action = network.get_action(np.array(state))
-        print('steps',j)
         # Update action to fall in range [0,1] for linear velocity and [-1,1] for angular velocity
         a_in = [(action[0] + 1) / 2, action[1]]
-        next_state, reward, done, target = env.step(a_in)
+        next_state, reward, done, target,info = env.step(a_in) ## info[distance to goal, angle to goal, linerar vel, angular vel]
+        if info[0]>max_dist:
+            max_dist=info[0]
+        print('max dis',max_dist)
         done = 1 if episode_timesteps + 1 == max_ep else int(done)
-        print('reward',reward)
         # On termination of episode
         if done:
             state = env.reset()
@@ -94,6 +106,22 @@ for i in range(eva_eps):
             state = next_state
             episode_timesteps += 1
         reward_eps+=reward
+        run_step+=1
+        distance+= DELAY*abs(info[2])
+        agl+=DELAY*abs(info[3])
+        linear_v+=abs(info[2])
+        lateral_v+=abs(info[3])
     rewards.append(reward_eps)
-    print('eps:',i,'eps reward:',reward_eps)
+    run_steps.append(run_step)
+    distances.append(distance)
+    agl_distances.append(agl)
+    linear_vs.append(linear_v/run_step)
+    lateral_vs.append(lateral_v/run_step)
+    # print('eps:',i,'eps reward:',reward_eps)
+    # print('run steps:',run_step)
 print('avg reward',np.mean(rewards))
+print('avg run steps',np.mean(run_steps))
+print('avg longitudinal distance',np.mean(distance))
+print('avg lateral distance',np.mean(agl_distances))
+print('avg linearl vel',np.mean(linear_vs))
+print('avg lateral vel',np.mean(lateral_vs))

@@ -22,7 +22,7 @@ def evaluate(network, epoch, eval_episodes=10):
         while not done and count < 501:
             action = network.get_action(np.array(state))
             a_in = [(action[0] + 1) / 2, action[1]]
-            state, reward, done, _ = env.step(a_in)
+            state, reward, done, _ ,_= env.step(a_in)
             avg_reward += reward
             count += 1
             if reward < -90:
@@ -343,7 +343,7 @@ while timestep < max_timesteps:
 
     # Update action to fall in range [0,1] for linear velocity and [-1,1] for angular velocity
     a_in = [(action[0] + 1) / 2, action[1]]
-    next_state, reward, done, target = env.step(a_in)
+    next_state, reward, done, target,_ = env.step(a_in)
     done_bool = 0 if episode_timesteps + 1 == max_ep else int(done)
     done = 1 if episode_timesteps + 1 == max_ep else int(done)
     episode_reward += reward
