@@ -391,6 +391,7 @@ class GazeboEnv:
                 break
     def reset(self):
 
+        self.static_obs_pos = []
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service("/gazebo/reset_world")
         try:
@@ -424,16 +425,16 @@ class GazeboEnv:
         self.odom_y = object_state.pose.position.y
 
         # set a random goal in empty space in environment
-        print("change_goal")
+        # print("change_goal")
         self.change_goal()
         # static obstacle (randomly scatter boxes in the environment)
-        print("static obstacle")
+        # print("static obstacle")
         self.random_box()
         self.publish_markers([0.0, 0.0])
-        print("dynamic obstacle")
+        # print("dynamic obstacle")
         # dynamic obstacle
         self.set_dynamic(x,y)
-        print("dynamic obstacle finish")
+        # print("dynamic obstacle finish")
         rospy.wait_for_service("/gazebo/unpause_physics")
         try:
             self.unpause()
@@ -636,7 +637,7 @@ class GazeboEnv:
                         self.vxobs[-obs_robot_id2] = self.obs_robot_state[obs_robot_id2][5]
                         self.vyobs[-obs_robot_id2] = self.obs_robot_state[obs_robot_id2][6]
                 for i in range(4):
-                    self.xobs[i + 2]=self.static_obs_pos[i][0]
+                    self.xobs[i + 2] = self.static_obs_pos[i][0]
                     self.yobs[i + 2] = self.static_obs_pos[i][1]
                     self.robs[i + 2] = 1
                 # print("after xobs={}".format(self.xobs))

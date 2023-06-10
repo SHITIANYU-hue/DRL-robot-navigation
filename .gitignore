@@ -1,0 +1,7 @@
+catkin_ws/build_isolated/*
+catkin_ws/devel_isolated/*
+TD3/runs/*
+TD3/__pycache__/*
+TD3/pytorch_models/*
+TD3/results/*
+.idea/
