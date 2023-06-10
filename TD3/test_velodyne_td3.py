@@ -38,7 +38,7 @@ class TD3(object):
     def load(self, filename, directory):
         # Function to load network parameters
         self.actor.load_state_dict(
-            torch.load("%s/%s_actor.pth" % (directory, filename))
+            torch.load("%s/%s_actor.pth" % (directory, filename),map_location=device)
         )
 
 
